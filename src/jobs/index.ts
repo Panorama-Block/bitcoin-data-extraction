@@ -1,6 +1,6 @@
 import * as hashblockService from "../services/hashblock";
 
-const minutes = 30, interval = minutes * 60 * 1000;
+const minutes = 10, interval = minutes * 60 * 1000;
 setInterval(async () => {
   const hashblocks = await hashblockService.getNewestsHashblocks()
 

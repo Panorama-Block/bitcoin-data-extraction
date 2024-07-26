@@ -74,9 +74,13 @@ export const saveHashblock = async (hashblock: HashblockType) => {
         previousblockhash: hashblock.previousblockhash,
         timestamp: hashblock.timestamp
       })
+      const data = await getTransactions(hashblock.id)
+      return data
     }
-    const data = await getTransactions(hashblock.id)
-    return data
+    else if (hasHashblock[0].value === 0) {
+      const data = await getTransactions(hashblock.id)
+      return data
+    }
   }
   catch (error) {
     return false
