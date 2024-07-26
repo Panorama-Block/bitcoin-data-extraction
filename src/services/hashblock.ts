@@ -3,7 +3,7 @@ import Hashblock from "../model/Hashblock"
 import { getTransactions } from "./transaction"
 import { getDayTimestamp } from "../utils/date"
 
-const BASE_URL = "https://mempool.space/api/v1"
+const BASE_URL = "https://api.mempool.space/api"
 
 export type HashblockType = {
   id: string,
@@ -23,7 +23,7 @@ export type HashblockType = {
 
 export const getHashblocks = async () => {
   try {
-    const hashblocks = await Hashblock.find()
+    const hashblocks = await Hashblock.find().sort({ timestamp: -1 })
     return hashblocks
   }
   catch (error) {
@@ -42,13 +42,26 @@ export const getHashblocksByDay = async (day: number) => {
     }, {
       "_id": 0,
       "__v": 0
-    })
+    }).sort({ timestamp: -1 })
     return hashblocks
   }
   catch (error) {
     return false
   }
 }
+
+export const getNewestsHashblocks = async () => {
+
+  try {
+    const response = await axios.get(`${BASE_URL}/blocks`)
+
+    return response.data
+  }
+  catch (error) {
+    return false
+  }
+}
+
 
 export const saveHashblock = async (hashblock: HashblockType) => {
   try {

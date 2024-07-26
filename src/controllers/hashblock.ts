@@ -34,11 +34,25 @@ export const getHashblocksByDay: RequestHandler = async (req, res) => {
   const hashblocks = await hashblockService.getHashblocksByDay(Number(day))
 
   if (hashblocks) {
-    res.status(200).json({ ok: hashblocks })
+    res.json({ ok: hashblocks })
   }
   else {
     res.status(500).json({
       error: 'An error occurred in the request'
     })
+  }
+}
+
+export const getNewestsHashblocks: RequestHandler = async (req, res) => {
+  const hashblocks = await hashblockService.getNewestsHashblocks()
+
+  if (hashblocks) {
+    await hashblocks.map(async (hashblock: hashblockService.HashblockType) => {
+      const saved = await hashblockService.saveHashblock(hashblock)
+    })
+    res.json({ ok: hashblocks })
+  }
+  else {
+    res.status(500).json({ error: 'An error occurred in the request' })
   }
 }

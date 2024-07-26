@@ -5,7 +5,7 @@ export const getTransactions: RequestHandler = async (req, res) => {
   const { id } = req.params
   const transactions = await transactionService.getTransactions(id)
 
-  if (transactions && transactions) {
+  if (transactions) {
     res.status(201).json({ ok: transactions })
   }
   else {
@@ -19,7 +19,6 @@ export const getTransactionsByDay: RequestHandler = async (req, res) => {
   const { day } = req.params
   const transactions = await transactionService.getTransactionsByDay(Number(day))
 
-  console.log(transactions)
   if (transactions) {
     res.status(201).json({ ok: transactions })
   }

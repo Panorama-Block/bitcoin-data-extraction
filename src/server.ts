@@ -3,6 +3,7 @@ import cors from 'cors'
 import { mainRouter } from './routes/main'
 import helmet from 'helmet'
 import { mongoConnect } from './database/mongo'
+import './jobs/index'
 
 mongoConnect()
 

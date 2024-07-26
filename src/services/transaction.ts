@@ -38,6 +38,7 @@ export const getTransactionsByDay = async (day: number) => {
 
   try {
     const hashblocks = await Hashblock.aggregate([
+      { $unset: ["_id"] },
       {
         $match: {
           timestamp: {
@@ -46,14 +47,28 @@ export const getTransactionsByDay = async (day: number) => {
         }
       },
       {
+        $group: {
+          "_id": null,
+          'fee': {
+            "$sum": "$fee"
+          },
+          'tx_count': {
+            "$sum": "$tx_count"
+          },
+          'value': {
+            "$sum": "$value"
+          }
+        }
+      },
+      {
         $project: {
-          "_id": 0,
+          '_id': 0,
           'fee': "$fee",
-          'tx_count': '$tx_count',
-          'value': '$value'
-        },
+          'tx_count': "$tx_count",
+          'value': "$value"
+        }
       }
-    ])
+    ]).sort({ timestamp: -1 })
 
     return hashblocks
   }
