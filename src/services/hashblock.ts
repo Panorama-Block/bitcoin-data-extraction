@@ -50,18 +50,23 @@ export const getHashblocksByDay = async (day: number) => {
   }
 }
 
-export const getNewestsHashblocks = async () => {
-
+export const getNewestsHashblocks = async (height?: string) => {
   try {
-    const response = await axios.get(`${BASE_URL}/blocks`)
-
-    return response.data
+    if (height) {
+      const response = await axios.get(`${BASE_URL}/blocks/${height}`)
+      return response.data
+    }
+    else {
+      const response = await axios.get(`${BASE_URL}/blocks`)
+      return response.data
+    }
   }
   catch (error) {
+    console.log(error)
+
     return false
   }
 }
-
 
 export const saveHashblock = async (hashblock: HashblockType) => {
   try {
@@ -83,6 +88,7 @@ export const saveHashblock = async (hashblock: HashblockType) => {
     }
   }
   catch (error) {
+    console.log(error)
     return false
   }
 }
