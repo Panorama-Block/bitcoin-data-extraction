@@ -5,6 +5,9 @@ type HashblockType = {
   tx_count: number,
   previousblockhash: string,
   timestamp: number,
+  size: number,
+  height: number,
+  weight: number,
   fee: number,
   value: number
 }
@@ -15,6 +18,9 @@ const schema = new Schema<HashblockType>({
   previousblockhash: { type: String, required: true },
   timestamp: { type: Number, required: true },
   fee: { type: Number, default: 0 },
+  size: { type: Number, required: true },
+  height: { type: Number, required: true },
+  weight: { type: Number, required: true },
   value: { type: Number, default: 0 }
 })
 

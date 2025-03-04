@@ -16,6 +16,7 @@ setInterval(async () => {
 }, interval);
 
 // const blocks = async () => {
+//   console.log("entrou")
 //   const hashblocks = await hashblockService.getManyHashblocks()
 
 //   if (hashblocks) {

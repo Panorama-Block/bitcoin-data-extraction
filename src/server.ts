@@ -3,6 +3,7 @@ import cors from 'cors'
 import https from 'https'
 import http from 'http'
 import * as fs from 'fs'
+import './jobs/index'
 
 import 'dotenv/config'
 
