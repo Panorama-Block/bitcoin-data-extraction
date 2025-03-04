@@ -102,7 +102,6 @@ export const getManyHashblocks = async (targetCount: number = 1000) => {
 
       allBlocks = [...allBlocks, ...blocks];
 
-      // Pega a altura do último bloco para próxima iteração
       const lastBlock = blocks[blocks.length - 1];
       lastHeight = lastBlock.height - 1;
 
@@ -122,12 +121,7 @@ export const saveHashblock = async (hashblock: HashblockType) => {
     const hasHashblock = await Hashblock.find({ id: hashblock.id })
 
     if (hasHashblock.length === 0) {
-      await Hashblock.create({
-        id: hashblock.id,
-        tx_count: hashblock.tx_count,
-        previousblockhash: hashblock.previousblockhash,
-        timestamp: hashblock.timestamp
-      })
+      await Hashblock.create(hashblock)
       const data = await getTransactions(hashblock.id)
       return data
     }
