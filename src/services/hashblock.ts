@@ -21,13 +21,31 @@ export type HashblockType = {
   difficulty: number
 }
 
-export const getHashblocks = async () => {
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  totalPages: number;
+}
+
+export const getHashblocks = async (page: number = 1, limit: number = 10): Promise<PaginatedResult<any> | false> => {
   try {
-    const hashblocks = await Hashblock.find().sort({ timestamp: -1 })
-    return hashblocks
+    const skip = (page - 1) * limit;
+    const [hashblocks, total] = await Promise.all([
+      Hashblock.find()
+        .sort({ timestamp: -1 })
+        .skip(skip)
+        .limit(limit),
+      Hashblock.countDocuments()
+    ]);
+
+    return {
+      data: hashblocks,
+      total,
+      totalPages: Math.ceil(total / limit)
+    };
   }
   catch (error) {
-    return false
+    return false;
   }
 }
 
