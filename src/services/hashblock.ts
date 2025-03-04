@@ -25,23 +25,26 @@ export interface PaginatedResult<T> {
   data: T[];
   total: number;
   totalPages: number;
+  page: number;
 }
 
 export const getHashblocks = async (page: number = 1, limit: number = 10): Promise<PaginatedResult<any> | false> => {
   try {
-    const skip = (page - 1) * limit;
-    const [hashblocks, total] = await Promise.all([
-      Hashblock.find()
-        .sort({ timestamp: -1 })
-        .skip(skip)
-        .limit(limit),
-      Hashblock.countDocuments()
-    ]);
+    const total = await Hashblock.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+    const validPage = Math.min(page, totalPages || 1);
+    const skip = (validPage - 1) * limit;
+
+    const hashblocks = await Hashblock.find()
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit);
 
     return {
       data: hashblocks,
       total,
-      totalPages: Math.ceil(total / limit)
+      totalPages,
+      page: validPage
     };
   }
   catch (error) {
@@ -80,6 +83,39 @@ export const getNewestsHashblocks = async () => {
   }
 }
 
+export const getManyHashblocks = async (targetCount: number = 1000) => {
+  try {
+    let allBlocks: any[] = [];
+    let lastHeight: number | undefined;
+
+    while (allBlocks.length < targetCount) {
+      const url = lastHeight
+        ? `${BASE_URL}/blocks/${lastHeight}`
+        : `${BASE_URL}/blocks`;
+
+      const response = await axios.get(url);
+      const blocks = response.data;
+
+      if (!blocks || blocks.length === 0) {
+        break;
+      }
+
+      allBlocks = [...allBlocks, ...blocks];
+
+      // Pega a altura do último bloco para próxima iteração
+      const lastBlock = blocks[blocks.length - 1];
+      lastHeight = lastBlock.height - 1;
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    return allBlocks.slice(0, targetCount);
+  }
+  catch (error) {
+    console.error('Error fetching many blocks:', error);
+    return false;
+  }
+}
 
 export const saveHashblock = async (hashblock: HashblockType) => {
   try {

@@ -34,7 +34,7 @@ export const getAllHashblocks: RequestHandler = async (req, res) => {
         data: result.data,
         pagination: {
           total: result.total,
-          page: pageNumber,
+          page: result.page,
           limit: limitNumber,
           totalPages: result.totalPages
         }
