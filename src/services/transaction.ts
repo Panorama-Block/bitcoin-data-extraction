@@ -2,7 +2,71 @@ import axios from "axios"
 import Hashblock from "../model/Hashblock"
 import { getDayTimestamp } from "../utils/date"
 
-const BASE_URL = "https://mempool.space/api/v1"
+const BASE_URL = "https://mempool.space/api"
+
+export interface TransactionStatus {
+  confirmed: boolean;
+  block_height?: number;
+  block_hash?: string;
+  block_time?: number;
+}
+
+export interface TransactionVin {
+  txid: string;
+  vout: number;
+  prevout?: {
+    scriptpubkey: string;
+    scriptpubkey_asm: string;
+    scriptpubkey_type: string;
+    scriptpubkey_address: string;
+    value: number;
+  };
+  scriptsig: string;
+  scriptsig_asm: string;
+  witness?: string[];
+  is_coinbase: boolean;
+  sequence: number;
+}
+
+export interface TransactionVout {
+  scriptpubkey: string;
+  scriptpubkey_asm: string;
+  scriptpubkey_type: string;
+  scriptpubkey_address: string;
+  value: number;
+}
+
+export interface TransactionInfo {
+  txid: string;
+  version: number;
+  locktime: number;
+  size: number;
+  weight: number;
+  fee: number;
+  vin: TransactionVin[];
+  vout: TransactionVout[];
+  status: TransactionStatus;
+}
+
+export const getTransactionInfo = async (id: string): Promise<TransactionInfo | false> => {
+  try {
+    const response = await axios.get(`${BASE_URL}/tx/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching transaction info:', error);
+    return false;
+  }
+};
+
+export const getTransactionIds = async (id: string): Promise<string[] | false> => {
+  try {
+    const response = await axios.get(`${BASE_URL}/block/${id}/txids`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching transaction IDs:', error);
+    return false;
+  }
+};
 
 export const getTransactions = async (id: string) => {
   try {
@@ -17,14 +81,21 @@ export const getTransactions = async (id: string) => {
         return acc
       })
 
-      const data = await Hashblock.updateOne(
-        { id: id },
-        {
-          tx_count: response.data.length,
-          fee: fee,
-          value: value
-        }
-      )
+      const data = {
+        id: id,
+        tx_count: response.data.length,
+        fee: fee,
+        value: value
+      }
+
+      // const result = await Hashblock.updateOne(
+      //   { id: id },
+      //   {
+      //     tx_count: response.data.length,
+      //     fee: fee,
+      //     value: value
+      //   }
+      // )
       return data
     }
   }

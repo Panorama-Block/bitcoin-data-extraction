@@ -21,13 +21,34 @@ export type HashblockType = {
   difficulty: number
 }
 
-export const getHashblocks = async () => {
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  totalPages: number;
+  page: number;
+}
+
+export const getHashblocks = async (page: number = 1, limit: number = 10): Promise<PaginatedResult<any> | false> => {
   try {
-    const hashblocks = await Hashblock.find().sort({ timestamp: -1 })
-    return hashblocks
+    const total = await Hashblock.countDocuments();
+    const totalPages = Math.ceil(total / limit);
+    const validPage = Math.min(page, totalPages || 1);
+    const skip = (validPage - 1) * limit;
+
+    const hashblocks = await Hashblock.find()
+      .sort({ timestamp: -1 })
+      .skip(skip)
+      .limit(limit);
+
+    return {
+      data: hashblocks,
+      total,
+      totalPages,
+      page: validPage
+    };
   }
   catch (error) {
-    return false
+    return false;
   }
 }
 
@@ -62,18 +83,45 @@ export const getNewestsHashblocks = async () => {
   }
 }
 
+export const getManyHashblocks = async (targetCount: number = 1000) => {
+  try {
+    let allBlocks: any[] = [];
+    let lastHeight: number | undefined;
+
+    while (allBlocks.length < targetCount) {
+      const url = lastHeight
+        ? `${BASE_URL}/blocks/${lastHeight}`
+        : `${BASE_URL}/blocks`;
+
+      const response = await axios.get(url);
+      const blocks = response.data;
+
+      if (!blocks || blocks.length === 0) {
+        break;
+      }
+
+      allBlocks = [...allBlocks, ...blocks];
+
+      const lastBlock = blocks[blocks.length - 1];
+      lastHeight = lastBlock.height - 1;
+
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
+
+    return allBlocks.slice(0, targetCount);
+  }
+  catch (error) {
+    console.error('Error fetching many blocks:', error);
+    return false;
+  }
+}
 
 export const saveHashblock = async (hashblock: HashblockType) => {
   try {
     const hasHashblock = await Hashblock.find({ id: hashblock.id })
 
     if (hasHashblock.length === 0) {
-      await Hashblock.create({
-        id: hashblock.id,
-        tx_count: hashblock.tx_count,
-        previousblockhash: hashblock.previousblockhash,
-        timestamp: hashblock.timestamp
-      })
+      await Hashblock.create(hashblock)
       const data = await getTransactions(hashblock.id)
       return data
     }

@@ -14,3 +14,17 @@ setInterval(async () => {
     console.log("Fail to get hashblocks")
   }
 }, interval);
+
+// const blocks = async () => {
+//   console.log("entrou")
+//   const hashblocks = await hashblockService.getManyHashblocks()
+
+//   if (hashblocks) {
+//     hashblocks.map(async (hashblock: hashblockService.HashblockType) => {
+//       const saved = await hashblockService.saveHashblock(hashblock)
+//       console.log(hashblocks)
+//     })
+//   }
+// }
+
+// blocks()
