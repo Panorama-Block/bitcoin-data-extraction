@@ -58,6 +58,16 @@ export const getTransactionInfo = async (id: string): Promise<TransactionInfo | 
   }
 };
 
+export const getTransactionIds = async (id: string): Promise<string[] | false> => {
+  try {
+    const response = await axios.get(`${BASE_URL}/block/${id}/txids`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching transaction IDs:', error);
+    return false;
+  }
+};
+
 export const getTransactions = async (id: string) => {
   try {
     const response = await axios.get(`${BASE_URL}/block/${id}/summary`)
@@ -71,14 +81,21 @@ export const getTransactions = async (id: string) => {
         return acc
       })
 
-      const data = await Hashblock.updateOne(
-        { id: id },
-        {
-          tx_count: response.data.length,
-          fee: fee,
-          value: value
-        }
-      )
+      const data = {
+        id: id,
+        tx_count: response.data.length,
+        fee: fee,
+        value: value
+      }
+
+      // const result = await Hashblock.updateOne(
+      //   { id: id },
+      //   {
+      //     tx_count: response.data.length,
+      //     fee: fee,
+      //     value: value
+      //   }
+      // )
       return data
     }
   }
