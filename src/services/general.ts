@@ -42,6 +42,31 @@ export interface HistoricalPrice {
     }
 }
 
+export interface Hashrate {
+    hashrates: {
+      timestamp: number;
+      avgHashrate: number;
+    }[];
+    difficulty: {
+      timestamp: number;
+      difficulty: number;
+      height: number;
+    }[];
+    currentHashrate: number;
+    currentDifficulty: number;
+}
+
+export interface DifficultyAdjustments {
+  response: [number[]];
+}
+
+export interface RewardStats {
+  startBlock: number;
+  endBlock: number;
+  totalReward: number;
+  totalFee: number;
+  totalTx: number;
+}
 
 export const getDifficultyAdjustment = async () => {
   try {
@@ -71,4 +96,34 @@ export const getHistoricalPrice = async (currency: string, timestamp: number): P
       console.error('Error fetching historical price info:', error);
       return false;
     }
+};
+
+export const getHashrate = async (timePeriod: string): Promise<Hashrate | false> =>  {
+  try {
+    const response = await axios.get(`${BASE_URL}/v1/mining/hashrate/${timePeriod}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching hashrate info:', error);
+    return false;
+  }
+};
+
+export const getDifficultyAdjustments = async (timePeriod: string): Promise<DifficultyAdjustments | false> =>  {
+  try {
+    const response = await axios.get(`${BASE_URL}/v1/mining/difficulty-adjustments/${timePeriod}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching difficulty adjustments info:', error);
+    return false;
+  }
+};
+
+export const getRewardStats = async (blockCount: number): Promise<RewardStats | false> =>  {
+  try {
+    const response = await axios.get(`${BASE_URL}/v1/mining/reward-stats/${blockCount}`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching Reward Stats info:', error);
+    return false;
+  }
 };
